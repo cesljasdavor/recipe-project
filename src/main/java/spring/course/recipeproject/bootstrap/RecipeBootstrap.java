@@ -1,6 +1,7 @@
 package spring.course.recipeproject.bootstrap;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEven
     private final RecipeRepository recipeRepository;
     private final UnitOfMeasureRepository unitOfMeasureRepository;
 
+    @Autowired
     public RecipeBootstrap(CategoryRepository categoryRepository, RecipeRepository recipeRepository, UnitOfMeasureRepository unitOfMeasureRepository) {
         this.categoryRepository = categoryRepository;
         this.recipeRepository = recipeRepository;
