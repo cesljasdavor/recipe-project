@@ -14,7 +14,9 @@ import spring.course.recipeproject.models.Recipe;
 import spring.course.recipeproject.repositories.RecipeRepository;
 import spring.course.recipeproject.repositories.UnitOfMeasureRepository;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -83,7 +85,7 @@ public class IngredientServiceImplTest {
     }
 
     @Test
-    public void testSaveRecipeCommand() throws Exception {
+    public void saveRecipeCommand() throws Exception {
         //given
         IngredientCommand command = new IngredientCommand();
         command.setId(3L);
@@ -108,4 +110,31 @@ public class IngredientServiceImplTest {
 
     }
 
+
+    @Test
+    public void deleteByRecipeIdAndIngredientId() throws Exception {
+        //given
+        Long givenIngredientId = 1L;
+        Ingredient givenIngredient = new Ingredient();
+        givenIngredient.setId(givenIngredientId);
+
+        Set<Ingredient> givenIngredients = new HashSet<>();
+        givenIngredients.add(givenIngredient);
+
+        Long givenRecipeId = 2L;
+        Recipe givenRecipe = new Recipe();
+        givenRecipe.setId(givenRecipeId);
+        givenRecipe.setIngredients(givenIngredients);
+        givenIngredient.setRecipe(givenRecipe);
+
+        when(recipeRepository.findById(anyLong())).thenReturn(Optional.of(givenRecipe));
+        when(recipeRepository.save(any(Recipe.class))).thenReturn(givenRecipe);
+
+        //when
+        ingredientService.deleteByRecipeIdAndIngredientId(givenRecipeId, givenIngredientId);
+
+        //then
+        verify(recipeRepository, times(1)).findById(anyLong());
+        verify(recipeRepository, times(1)).save(any(Recipe.class));
+    }
 }
