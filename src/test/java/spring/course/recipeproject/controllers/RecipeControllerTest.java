@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import spring.course.recipeproject.commands.RecipeCommand;
+import spring.course.recipeproject.exceptions.NotFoundException;
 import spring.course.recipeproject.models.Recipe;
 import spring.course.recipeproject.services.RecipeService;
 
@@ -37,7 +38,9 @@ public class RecipeControllerTest {
         MockitoAnnotations.initMocks(this);
 
         recipeController = new RecipeController(recipeService);
-        mockMvc = MockMvcBuilders.standaloneSetup(recipeController).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(recipeController)
+                .setControllerAdvice(new ControllerExceptionHandler()) // Without this test will fail, because we didn't bring up whole context
+                .build();
     }
 
     @Test
@@ -52,6 +55,26 @@ public class RecipeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("recipe/show"))
                 .andExpect(model().attributeExists("recipe"));
+    }
+
+    @Test
+    public void getRecipeNotFound() throws Exception {
+        when(recipeService.findById(anyLong())).thenThrow(NotFoundException.class);
+
+        mockMvc.perform(get("/recipe/1/show"))
+                .andExpect(status().isNotFound())
+                .andExpect(model().attributeExists("status"))
+                .andExpect(model().attributeExists("ex"))
+                .andExpect(view().name("error"));
+    }
+
+    @Test
+    public void handleRecipeIdFormatException() throws Exception {
+        mockMvc.perform(get("/recipe/dsasdsa/show"))
+                .andExpect(status().isBadRequest())
+                .andExpect(model().attributeExists("status"))
+                .andExpect(model().attributeExists("ex"))
+                .andExpect(view().name("error"));
     }
 
     @Test

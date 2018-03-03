@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import spring.course.recipeproject.commands.RecipeCommand;
 import spring.course.recipeproject.converters.RecipeCommandToRecipe;
 import spring.course.recipeproject.converters.RecipeToRecipeCommand;
+import spring.course.recipeproject.exceptions.NotFoundException;
 import spring.course.recipeproject.models.Recipe;
 import spring.course.recipeproject.repositories.RecipeRepository;
 
@@ -45,7 +46,8 @@ public class RecipeServiceImpl implements RecipeService {
     public Recipe findById(Long id) {
         log.info("Requested recipe with id: " + id);
 
-        return recipeRepository.findById(id).orElse(null);
+        return recipeRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Recipe with ID='" + id + "' not found!"));
     }
 
     @Override

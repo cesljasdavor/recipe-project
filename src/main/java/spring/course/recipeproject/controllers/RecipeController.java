@@ -2,10 +2,13 @@ package spring.course.recipeproject.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 import spring.course.recipeproject.commands.RecipeCommand;
+import spring.course.recipeproject.exceptions.NotFoundException;
 import spring.course.recipeproject.services.RecipeService;
 
 /**
@@ -23,8 +26,8 @@ public class RecipeController {
     }
 
     @RequestMapping("{id}/show")
-    public String getRecipe(@PathVariable String id, Model model) {
-        model.addAttribute("recipe", recipeService.findById(Long.parseLong(id)));
+    public String getRecipe(@PathVariable Long id, Model model) {
+        model.addAttribute("recipe", recipeService.findById(id));
 
         return "recipe/show";
     }
@@ -59,4 +62,8 @@ public class RecipeController {
         return "redirect:/index";
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    public ModelAndView handleRecipeNotFound(Exception ex) {
+        return ControllerExceptionHandler.handleError(ex, HttpStatus.NOT_FOUND);
+    }
 }
