@@ -5,11 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import spring.course.recipeproject.commands.RecipeCommand;
 import spring.course.recipeproject.exceptions.NotFoundException;
 import spring.course.recipeproject.services.RecipeService;
+
+import javax.validation.Valid;
 
 /**
  * Created by cesljasdavor 01.03.18.
@@ -40,7 +43,13 @@ public class RecipeController {
     }
 
     @PostMapping("")
-    public String saveOrUpdate(@ModelAttribute RecipeCommand command) { // Map the form POST params to RecipeCommand
+    public String saveOrUpdate(@Valid @ModelAttribute("recipe") RecipeCommand command, BindingResult bindingResult) { // Map the form POST params to RecipeCommand
+        if (bindingResult.hasErrors()) {
+            bindingResult.getAllErrors().forEach(error -> log.debug(error.toString()));
+
+            return "recipe/recipeform";
+        }
+
         RecipeCommand persistedCommand = recipeService.saveRecipeCommand(command);
 
         return "redirect:" + persistedCommand.getId() + "/show"; // Tells Spring MVC to redirect to this URL. Forms a request to it.
